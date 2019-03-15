@@ -51,6 +51,7 @@ describe('Spread syntax with arrays', () => {
         class X {
           constructor(a, b, c) { return [a, b, c]; }
         }
+        // there was just [1] it wanted the whole array123
         const args = [1, 2, 3];
         assert.deepEqual(new X(...args), [1, 2, 3]);
       });

@@ -4,6 +4,7 @@
 describe('`Reflect` basics', function() {
     describe('Reflect is special, it is different to e.g. `Object`', function() {
       it('it`s of type object', function() {
+        //changed this to an object becaues that's what it is.
         const expectedType = 'object';
         assert.equal(typeof Reflect, expectedType);
       });

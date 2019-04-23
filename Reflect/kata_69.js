@@ -1,143 +1,113 @@
-// 76: Promise - creation 
+// 69: Reflect - defineProperty 
 // To do: make all tests pass, leave the assert lines unchanged!
-// Follow the hints of the failure messages!
 
-describe('A promise can be created in multiple ways', function() {
-    describe('creating a promise fails when', function() {
-      it('using `Promise` as a function', function() {
-        function callPromiseAsFunction() { 
-          //Well lets just throw some () and it's a function
-          Promise();
-        }
-        assert.throws(callPromiseAsFunction);
-      });
-      it('no parameter is passed', function() {
-        function promiseWithoutParams() {
-          new Promise();
-        }
-        assert.throws(promiseWithoutParams);  
-      });
-      it('passing a non-callable throws too', function() {
-        // made it an object which isn't callable
-        const notAFunction = {};
-        assert.throws(() => { new Promise(notAFunction); });
-      });
+describe('`Reflect.defineProperty()` is like `Object.defineProperty()` but returns a Boolean.', function() {
+  describe('the function itself', function() {
+    it('is static on the `Reflect` object', function() {
+      //they wanted just defineProperty not reflect.defineProperty....
+      const name = 'defineProperty';
+      assert.equal(name in Reflect, true);
     });
-    describe('most commonly Promises get created using the constructor', function() {
-      it('by passing a resolve function to it', function() {
-        // have to pass it in to use it
-        const promise = new Promise((resolve) => resolve());
-        return promise;
-      });
-      it('by passing a resolve and a reject function to it', function(done) {
-        // did a reject instead of a resolve
-        const promise = new Promise((resolve, reject) => reject());
-        promise
-          .then(() => done(new Error('Expected promise to be rejected.')))
-          .catch(done);
-      });
-    });
-    describe('extending a `Promise`', function() {
-      it('using `class X extends Promise{}` is possible', function(done) {
-        // Unchecked the Transpile to ES5 on the top and added in teh extends promise
-        class MyPromise extends Promise{}
-        const  promise = new MyPromise(resolve => resolve());
-        promise
-          .then(() => done())
-          .catch(e => done(new Error('Expected to resolve, but failed with: ' + e)));
-      });
-      it('must call `super()` in the constructor if it wants to inherit/specialize the behavior', function() {
-        class ResolvingPromise extends Promise {
-          //added in the constructor and super as well as the extends promis above
-          constructor(...args){
-            super(...args);
-          }
-        }
-        return new ResolvingPromise(resolve => resolve());
-      });
-    });
-    describe('`Promise.all()` returns a promise that resolves when all given promises resolve', function() {
-      it('returns all results', function(done) {
-        const promise = Promise.all([
-          //the assert only wanted 1,2 so I got rid of 3
-          new Promise(resolve => resolve(1)),new Promise(resolve => resolve(2))
-        ]);
-        promise
-          .then(value => { assert.deepEqual(value, [1, 2]); done(); })
-          .catch(e => done(new Error(e)));
-      });
-      it('is rejected if one rejects', function(done) {
-        const promise = Promise.all([
-          //had to add in the err so it realized it was rejected
-          new Promise(reject=> reject(err))
-        ]);
-        promise
-          .then(() => done(new NotRejectedError()))
-          .catch((err) => done());
-      });
-    });
-    
-    describe('`Promise.race()` returns the first settled promise', function() {
-      it('if it resolves first, the promises resolves', function(done) {
-        const lateRejectedPromise = new Promise((resolve, reject) => setTimeout(reject, 100));
-        const earlyResolvingPromise = new Promise(resolve => resolve('1st :)'));
-        //put the early promise into the array for the race
-        const promise = Promise.race([lateRejectedPromise, earlyResolvingPromise]);
-        promise
-          .then(value => { assert.deepEqual(value, '1st :)'); done(); })
-          .catch(e => done(new Error('Expected to resolve, but failed with: ' + e)));
-      });
-      it('if one of the given promises rejects first, the returned promise is rejected', function(done) {
-        //the rejector was in all caps so it didn't match the assertion
-        const earlyRejectedPromise = new Promise((resolve, reject) => reject('I am a rejector'));
-        const lateResolvingPromise = new Promise(resolve => setTimeout(resolve, 10));
-        const promise = Promise.race([earlyRejectedPromise, lateResolvingPromise]);
-        promise
-          .then(() => done(new NotRejectedError()))
-          .catch(value => { assert.equal(value, 'I am a rejector'); done(); })
-          .catch(done);
-      });
-    });
-    describe('`Promise.resolve()` returns a resolving promise', function() {
-      it('if no value given, it resolves with `undefined`', function(done) {
-        //left the resolve empty so it gave undefined
-        const promise = Promise.resolve();
-        promise
-          .then(value => { assert.deepEqual(value, void 0); done(); })
-          .catch(e => done(new Error('Expected to resolve, but failed with: ' + e)));
-      });
-      it('resolves with the given value', function(done) {
-        // Threw 'quick resolve' in there matched assert
-        const promise = Promise.resolve('quick resolve');
-        promise
-          .then(value => { assert.equal(value, 'quick resolve'); done(); })
-          .catch(e => done(e));
-      });
-    });
-    describe('`Promise.reject()` returns a rejecting promise', function() {
-      it('if no value given, it rejects with `undefined`', function(done) {
-        //changed this from .resolve to .reject so it would reject with undefined
-        const promise = Promise.reject();
-        promise
-          .then(() => done(new NotRejectedError()))
-          .catch(value => { assert.deepEqual(value, void 0); done(); })
-          .catch(done);
-      });
-      it('the parameter passed to `reject()` can be used in the `.catch()`', function(done) {
-        // passed the param to reject the promise
-        const promise = Promise.reject('quick reject');
-        promise
-          .then(() => done(new NotRejectedError()))
-          .catch(value => { assert.deepEqual(value, 'quick reject'); done(); })
-          .catch(done);
-      });
+    it('is of type `function`', function() {
+      //it's a function
+      const expectedType = 'function';
+      assert.equal(typeof Reflect.defineProperty, expectedType)
     });
   });
   
-  class NotRejectedError extends Error {
-    constructor() {
-      super();
-      this.message = 'Expected promise to be rejected.';
-    }
-  }
-  
+  describe('the 1st parameter is the object on which to define a property', function() {
+    it('fails if it is not an object', function() {
+      //changed it to a boolean, it needs an object
+      let noObj = true;
+      assert.throws(() => { Reflect.defineProperty(noObj, 'property', {value: 'value'}); });
+    });
+    it('accepts an object', function() {
+      //takes an {} 
+      let obj = {};
+      assert.doesNotThrow(() => { Reflect.defineProperty(obj, 'property', {value: 'value'}); });
+    });
+    it('accepts an instance (of a class)', function() {
+      // made a class for it to use
+      let instance = class {};
+      assert.doesNotThrow(() => { Reflect.defineProperty(instance, 'property', {value: 'value'}); });
+    });
+  });
+
+  describe('2nd parameter is the name of the property to be defined on the object (normally a string)', function() {
+    it('works with a `normal` string', function() {
+      let obj = {};
+      //stuck in 'prop' matching the assert
+      Reflect.defineProperty(obj, 'prop', {});
+      assert.equal('prop' in obj, true);
+    });
+    it('a number gets converted into a string', function() {
+      let obj = {};
+      //changed it to 1 that it changes into a string
+      Reflect.defineProperty(obj, 1, {});
+      assert.equal('1' in obj, true);
+    });
+    it('`undefined` also gets converted into a string (watch out!)', function() {
+      let obj = {};
+      let undef ;
+      // left undef undefined, that changed it into a string. could cause problems somewhere
+      Reflect.defineProperty(obj, undef, {});
+      assert.equal('undefined' in obj, true);
+    });
+    it('it can be a symbol', function() {
+      let obj = {};
+      const sym = Symbol.for('prop');
+      //added the Symbol.for in with the 'prop' it's needed to call the symbol
+      Reflect.defineProperty(obj, Symbol.for('prop'), {});
+      assert.equal(sym in obj, true);
+    });
+  });
+
+  describe('the `value` is part of the 3rd parameter, given as a property in an object `{value: ...}`', function() {
+    // The entire complexity of the 3rd parameter might be covered in a later kata. 
+    it('contains the initial value of the property, as an object in the property `value`', function() {
+      let obj = {};
+      //Added in the value property on the end
+      Reflect.defineProperty(obj, 'prop', {value:'property value'});
+      assert.equal(obj.prop, 'property value');
+    });
+    it('can be of any type (even itself)', function() {
+      let obj = {};
+      //set the value to itself
+      Reflect.defineProperty(obj, 'prop', {value: obj});
+      assert.equal(obj.prop, obj);
+    });
+  });
+
+  describe('the return value of the function indicates wether the property was defined successfully', function() {
+    describe('returns true', function() {
+      it('when the property was created (which requires the 3rd parameter too!!!)', function() {
+        let instance = new class {};
+        // passed in a class and made up some other values it needed the value defined and now it comes back as true
+        const wasPropertyDefined = Reflect.defineProperty(instance, '', {value:"6"});
+        assert.equal(wasPropertyDefined, true);
+      });
+      it('no matter what the value of the property is (just the 3rd param has to exist as `{}`)', function() {
+        let instance = new class {};
+        // don't need the value: key in there!!!
+        const wasPropertyDefined = Reflect.defineProperty(instance, '',{});
+        assert.equal(wasPropertyDefined, true);
+      });
+    });
+    describe('returns false', function() {
+      it('when a non-configurable property wants to be changed to configurable=true', function() {
+        let obj = {};
+        Reflect.defineProperty(obj, 'x', {configurable: false});
+        const wasPropertyDefined = Reflect.defineProperty(obj, 'x', {configurable: true});
+        //changed the configurable property to true showing it can be changed
+        assert.equal(wasPropertyDefined, false);
+      });
+      it('when the object we want to add a property to is frozen', function() {
+        let instance = new class {};
+        Object.freeze(instance);
+        // they had an object instead of the class here in the defineProperty I just had to switch it.
+        const wasPropertyDefined = Reflect.defineProperty(instance, 'prop', {value: 1});
+        assert.equal(wasPropertyDefined, false);
+      });
+    });
+  });
+});

@@ -16,7 +16,7 @@ describe('`Reflect` basics', function() {
       it('has no `call` method (as opposed to e.g. Object)', function() {
         //reflect cannot be called like a finction or an object so it doesn't have a call
         const expected = "undefined";
-        assert.equal(typeof Reflect.call, expected);
+        assert.equal(typeof Reflect.call, expected);  
       });
     });
     

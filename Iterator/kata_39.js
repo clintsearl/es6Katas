@@ -56,15 +56,18 @@ describe('A simple iterable without items inside, implementing the right protoco
         assert.equal(values, '');
       });
       it('has no `.length` property', function() {
+        //add in the !! to say it is false that it does not have one
         const hasLengthProperty = !!iterable.length;
         assert.equal(hasLengthProperty, false);
       });
       describe('can be converted to an array', function() {
         it('using `Array.from()`', function() {
+          //just added Array.from()
           const arr = Array.from(iterable);
           assert.equal(Array.isArray(arr), true);
         });
         it('where `.length` is still 0', function() {
+          //Once again added Array.from
           const arr = Array.from(iterable);
           const length = arr.length;
           assert.equal(length, 0);
